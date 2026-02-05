@@ -1,0 +1,26 @@
+{
+  "name": "guessquest-multiplayer-game",
+  "version": "1.0.0",
+  "description": "Scribble-like multiplayer guessing game where server selects images and players guess answers",
+  "main": "server/server.js",
+  "scripts": {
+    "start": "node server/server.js",
+    "dev": "nodemon server/server.js"
+  },
+  "keywords": [
+    "multiplayer",
+    "game",
+    "guessing",
+    "socket.io",
+    "realtime"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "socket.io": "^4.6.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  }
+}

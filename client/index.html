@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#1a1d29">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="description"
+    content="GuessQuest - Multiplayer image guessing game. Find hidden objects, race against time, and win together!">
+  <title>GuessQuest - Multiplayer Image Guessing Game</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap"
+    rel="stylesheet">
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/game.css">
+
+  <!-- Socket.IO -->
+  <script src="/socket.io/socket.io.js"></script>
+</head>
+
+<body>
+  <!-- Join Screen -->
+  <div id="join-screen" class="screen">
+    <div class="join-container">
+      <h1 class="game-title">GuessQuest</h1>
+      <p class="game-subtitle">Find hidden objects. Race against time. Win together!</p>
+      <form id="join-form">
+        <input type="text" id="player-name-input" placeholder="Enter your name" maxlength="20" autocomplete="off"
+          required aria-label="Player name">
+        <button type="submit" class="btn-primary" aria-label="Join game">
+          <span class="btn-text">Join Game</span>
+          <span class="btn-icon">🎮</span>
+        </button>
+      </form>
+      <div class="join-footer">
+        <p class="join-hint">💡 Best played on mobile phones</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Game Screen -->
+  <div id="game-screen" class="screen hidden">
+    <div class="game-layout">
+      <!-- Header -->
+      <header class="game-header">
+        <div class="round-info">
+          <span class="round-label">Round</span>
+          <span class="round-number" id="round-number">1</span>
+        </div>
+        <div class="question-container">
+          <p class="question-text" id="question-text">Waiting for round...</p>
+        </div>
+        <div class="timer-container">
+          <svg class="timer-ring" width="60" height="60" viewBox="0 0 60 60" aria-label="Timer">
+            <circle class="timer-ring-bg" cx="30" cy="30" r="26" />
+            <circle class="timer-ring-progress" cx="30" cy="30" r="26" id="timer-ring-progress" />
+          </svg>
+          <div class="timer-text" id="timer-text" aria-live="polite">60</div>
+        </div>
+      </header>
+
+      <!-- Main Content Area -->
+      <div class="game-content">
+        <!-- Image Canvas -->
+        <div class="canvas-area">
+          <div class="image-container" id="image-container">
+            <div class="waiting-state">
+              <div class="spinner" aria-label="Loading"></div>
+              <p>Get ready for the next round...</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sidebar: Scoreboard + Chat -->
+        <div class="sidebar">
+          <!-- Scoreboard Panel -->
+          <div class="scoreboard-panel">
+            <h3 class="panel-title">
+              <span class="panel-icon">👥</span>
+              Players
+            </h3>
+            <div class="scoreboard" id="scoreboard" role="list" aria-label="Player scores">
+              <!-- Players will be added dynamically -->
+            </div>
+          </div>
+
+          <!-- Chat Panel -->
+          <div class="chat-panel">
+            <h3 class="panel-title">
+              <span class="panel-icon">💬</span>
+              Guesses
+            </h3>
+            <div class="chat-messages" id="chat-messages" role="log" aria-live="polite" aria-label="Chat messages">
+              <!-- Messages will be added dynamically -->
+            </div>
+            <form class="chat-form" id="chat-form">
+              <div class="input-wrapper">
+                <input type="text" id="chat-input" placeholder="Type your guess..." autocomplete="off" maxlength="100"
+                  aria-label="Your guess">
+                <button type="submit" class="btn-send" aria-label="Submit guess">
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"
+                    aria-hidden="true">
+                    <path d="M22 2L11 13" stroke="currentColor" stroke-width="2.0" stroke-linecap="round"
+                      stroke-linejoin="round" />
+                    <path d="M22 2L15 22L11 13L2 9L22 2Z" stroke="currentColor" stroke-width="2.5"
+                      stroke-linecap="round" stroke-linejoin="round" />
+                  </svg>
+                </button>
+              </div>
+            </form>
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Floating Help Button -->
+    <button id="help-button" class="help-button" aria-label="Show help" onclick="window.showHelpModal()"
+      style="position: fixed; bottom: 1rem; right: 1rem; width: 48px; height: 48px; background: var(--accent); border: none; border-radius: 50%; color: var(--bg-dark); font-size: 1.5rem; font-weight: 700; cursor: pointer; box-shadow: var(--shadow-lg); z-index: 100; display: flex; align-items: center; justify-content: center; transition: all 0.2s ease;">
+      ?
+    </button>
+
+    <!-- Round End Overlay -->
+    <div class="round-end-overlay hidden" id="round-end-overlay" role="dialog" aria-labelledby="round-end-title">
+      <div class="round-end-content">
+        <h2 class="round-end-title" id="round-end-title">⏱️ Time's Up!</h2>
+        <div class="answer-reveal">
+          <span class="answer-label">Correct Answer</span>
+          <div class="answer-value" id="answer-value">5</div>
+        </div>
+        <div class="winners-section">
+          <p class="winners-title">🏆 Correct Guessers</p>
+          <div class="winners-list" id="winners-list">
+            <p class="no-winners">No one guessed correctly</p>
+          </div>
+        </div>
+        <p class="next-round-text">
+          Next round starting in <span id="next-round-timer">5</span>s...
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="js/timer.js"></script>
+  <script src="js/chat.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/socket.js"></script>
+  <script src="js/game.js"></script>
+
+  <!-- Add hover effect for help button -->
+  <style>
+    .help-button:hover {
+      background: var(--secondary) !important;
+      transform: scale(1.1);
+    }
+
+    .help-button:active {
+      transform: scale(0.95);
+    }
+  </style>
+</body>
+
+</html>
