@@ -2,7 +2,6 @@
 function updateScoreboard(players) {
   const scoreboard = document.getElementById("scoreboard");
 
-  // Sort players by score (descending)
   const sortedPlayers = [...players].sort((a, b) => b.score - a.score);
 
   scoreboard.innerHTML = "";
@@ -21,17 +20,14 @@ function updateScoreboard(players) {
     playerItem.className = "player-item";
     playerItem.dataset.playerId = player.id;
 
-    // Highlight current player
     if (player.id === gameState.playerId) {
       playerItem.classList.add("current-player");
     }
 
-    // Highlight top scorer
     if (player.score > 0 && player.score === topScore && index === 0) {
       playerItem.classList.add("top-scorer");
     }
 
-    // Add status classes
     if (player.status === "disconnected") {
       playerItem.classList.add("disconnected");
     } else if (player.status === "answered") {
@@ -41,10 +37,8 @@ function updateScoreboard(players) {
     const rank = index + 1;
     const rankClass = rank <= 3 ? `rank-${rank}` : "";
 
-    // Safely escape player name
     const playerName = escapeHtml(player.name || "Player");
 
-    // Create card structure
     const playerInfo = document.createElement("div");
     playerInfo.className = "player-info";
 
@@ -55,12 +49,11 @@ function updateScoreboard(players) {
     const nameSpan = document.createElement("span");
     nameSpan.className = "player-name";
     nameSpan.textContent = playerName;
-    nameSpan.title = playerName; // Tooltip for long names
+    nameSpan.title = playerName;
 
     playerInfo.appendChild(rankSpan);
     playerInfo.appendChild(nameSpan);
 
-    // Add status indicator
     const statusIndicator = document.createElement("span");
     statusIndicator.className = "player-status-indicator";
 
@@ -86,14 +79,11 @@ function updateScoreboard(players) {
     scoreboard.appendChild(playerItem);
   });
 
-  // Only auto-scroll on initial load or new player join (not on score updates)
-  // This is handled by checking if the current player is out of view
   const currentPlayerElement = scoreboard.querySelector(".current-player");
   if (currentPlayerElement) {
     const scoreboardRect = scoreboard.getBoundingClientRect();
     const playerRect = currentPlayerElement.getBoundingClientRect();
 
-    // Only scroll if player is not visible
     if (
       playerRect.bottom > scoreboardRect.bottom ||
       playerRect.top < scoreboardRect.top
@@ -114,7 +104,6 @@ function animateScoreChange(playerId, oldScore, newScore, points) {
   const scoreSpan = playerItem.querySelector(".player-score");
   if (!scoreSpan) return;
 
-  // Create floating points animation
   const floatingPoints = document.createElement("div");
   floatingPoints.className = "floating-points";
   floatingPoints.textContent = `+${points}`;
@@ -122,10 +111,8 @@ function animateScoreChange(playerId, oldScore, newScore, points) {
   playerItem.style.position = "relative";
   playerItem.appendChild(floatingPoints);
 
-  // Pulse effect on the player item
   playerItem.classList.add("score-pulse");
 
-  // Animate the score number change
   const duration = 500;
   const steps = 20;
   const increment = (newScore - oldScore) / steps;
@@ -142,7 +129,6 @@ function animateScoreChange(playerId, oldScore, newScore, points) {
     }
   }, duration / steps);
 
-  // Remove floating points after animation
   setTimeout(() => {
     if (floatingPoints.parentNode) {
       floatingPoints.remove();
@@ -153,22 +139,18 @@ function animateScoreChange(playerId, oldScore, newScore, points) {
 
 // Display round start
 function displayRoundStart(data) {
-  // Update round number
   const roundNumber = document.getElementById("round-number");
   if (roundNumber) {
     roundNumber.textContent = data.roundNumber;
   }
 
-  // Update question
   const questionText = document.getElementById("question-text");
   if (questionText) {
     questionText.textContent = data.question;
   }
 
-  // Display image with loading state
   const imageContainer = document.getElementById("image-container");
   if (imageContainer) {
-    // Show loading state
     imageContainer.innerHTML = `
       <div class="image-loading">
         <div class="spinner"></div>
@@ -176,7 +158,6 @@ function displayRoundStart(data) {
       </div>
     `;
 
-    // Preload image
     const img = new Image();
     img.onload = () => {
       const imageUrl = escapeHtml(data.imageUrl);
@@ -192,22 +173,20 @@ function displayRoundStart(data) {
     img.src = data.imageUrl;
   }
 
-  // Reset and start timer
   if (window.resetTimer) {
     window.resetTimer(data.timeRemaining || 60);
   }
 
-  // Focus on chat input with slight delay for keyboard
   const chatInput = document.getElementById("chat-input");
   if (chatInput) {
     setTimeout(() => {
       chatInput.value = "";
       chatInput.disabled = false;
+      chatInput.placeholder = "Type your guess...";
       chatInput.focus();
     }, 300);
   }
 
-  // Show round start feedback
   showRoundStartFeedback(data.roundNumber);
 }
 
@@ -241,16 +220,14 @@ function showRoundEndOverlay(data) {
 
   if (!overlay || !answerValue || !winnersList) return;
 
-  // Disable chat input
   const chatInput = document.getElementById("chat-input");
   if (chatInput) {
     chatInput.disabled = true;
+    chatInput.placeholder = "Type your guess...";
   }
 
-  // Set answer
   answerValue.textContent = data.answer;
 
-  // Display winners with position indicators
   if (data.correctGuessers && data.correctGuessers.length > 0) {
     winnersList.innerHTML = data.correctGuessers
       .map((name, index) => {
@@ -273,7 +250,6 @@ function showRoundEndOverlay(data) {
       '<p class="no-winners">No one guessed correctly</p>';
   }
 
-  // Highlight top scorer if exists
   if (data.topScorer) {
     const topScorerElement = document.querySelector(
       `[data-player-id="${data.topScorer}"]`,
@@ -283,11 +259,9 @@ function showRoundEndOverlay(data) {
     }
   }
 
-  // Show overlay with animation
   overlay.classList.remove("hidden");
   overlay.classList.add("show");
 
-  // Start countdown
   let countdown = 5;
   const timerElement = document.getElementById("next-round-timer");
 
@@ -371,7 +345,7 @@ function showHelpModal() {
     <div class="help-modal-overlay"></div>
     <div class="help-modal-content">
       <button class="help-modal-close" aria-label="Close">×</button>
-      <h2>📱 How to Play GuessQuest</h2>
+      <h2>📱 How to Play WhatYouSee</h2>
       <div class="help-steps">
         <div class="help-step">
           <div class="help-step-number">1</div>
@@ -391,7 +365,7 @@ function showHelpModal() {
           <div class="help-step-number">3</div>
           <div class="help-step-text">
             <h3>Earn Points</h3>
-            <p>Faster correct guesses earn more points!</p>
+            <p>First correct answer: 100 pts, others: 50 pts!</p>
           </div>
         </div>
       </div>
@@ -399,9 +373,9 @@ function showHelpModal() {
         <h3>💡 Tips</h3>
         <ul>
           <li>Best played on mobile 📱</li>
-          <li>First correct guess gets bonus points</li>
+          <li>First correct guess gets 100 points!</li>
           <li>One guess per round - make it count!</li>
-          <li>Stay connected for your best scores</li>
+          <li>Drag the ? button anywhere you like!</li>
         </ul>
       </div>
       <button class="btn-primary help-modal-cta">Got it! Let's Play</button>
@@ -410,12 +384,10 @@ function showHelpModal() {
 
   document.body.appendChild(modal);
 
-  // Show modal with animation
   setTimeout(() => {
     modal.classList.add("show");
   }, 10);
 
-  // Close handlers
   const closeBtn = modal.querySelector(".help-modal-close");
   const ctaBtn = modal.querySelector(".help-modal-cta");
   const overlay = modal.querySelector(".help-modal-overlay");
@@ -426,8 +398,7 @@ function showHelpModal() {
       modal.remove();
     }, 300);
 
-    // Store that user has seen help
-    localStorage.setItem("guessquest-help-seen", "true");
+    localStorage.setItem("whatyousee-help-seen", "true");
   };
 
   closeBtn.addEventListener("click", closeModal);
@@ -437,7 +408,7 @@ function showHelpModal() {
 
 // Check if first time player and show help
 function checkFirstTimePlayer() {
-  const hasSeenHelp = localStorage.getItem("guessquest-help-seen");
+  const hasSeenHelp = localStorage.getItem("whatyousee-help-seen");
   if (!hasSeenHelp) {
     setTimeout(() => {
       showHelpModal();

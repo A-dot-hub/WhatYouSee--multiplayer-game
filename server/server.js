@@ -38,14 +38,14 @@ app.get("/health", (req, res) => {
 
 // Game state
 const gameState = {
-  players: new Map(), // socket.id -> {id, name, score, status, lastSeen, hasAnswered}
+  players: new Map(),
   roundManager: new RoundManager(),
   scoreManager: new ScoreManager(),
   currentRound: null,
   roundActive: false,
   correctGuessers: new Set(),
   roundInterval: null,
-  recentGuesses: new Map(), // Anti-spam: socket.id -> last guess timestamp
+  recentGuesses: new Map(),
 };
 
 // Player status enum
@@ -131,7 +131,6 @@ io.on("connection", (socket) => {
     const timeSinceLastGuess = now - lastGuessTime;
 
     if (timeSinceLastGuess < 500) {
-      // 500ms cooldown between guesses
       return;
     }
 
@@ -140,7 +139,7 @@ io.on("connection", (socket) => {
       return;
     }
 
-    // Check if player already submitted answer this round (one guess per round enforcement)
+    // Check if player already submitted answer this round
     if (player.hasAnswered) {
       socket.emit("already-answered", {
         message: "You've already submitted your answer for this round!",
@@ -162,12 +161,8 @@ io.on("connection", (socket) => {
       gameState.correctGuessers.add(socket.id);
       player.status = PlayerStatus.ANSWERED;
 
-      // Award points
-      const points = gameState.scoreManager.calculatePoints(
-        gameState.correctGuessers.size,
-        gameState.roundManager.getTimeRemaining(),
-        gameState.roundManager.roundDuration,
-      );
+      // Award points: 100 for first, 50 for others
+      const points = gameState.correctGuessers.size === 1 ? 100 : 50;
 
       const oldScore = player.score;
       player.score += points;
@@ -200,7 +195,9 @@ io.on("connection", (socket) => {
 
       // If everyone has answered, end round early
       const activePlayers = Array.from(gameState.players.values()).filter(
-        (p) => p.status === PlayerStatus.ACTIVE,
+        (p) =>
+          p.status === PlayerStatus.ACTIVE ||
+          p.status === PlayerStatus.ANSWERED,
       );
       if (gameState.correctGuessers.size >= activePlayers.length) {
         setTimeout(() => endRound(), 2000);
@@ -372,13 +369,12 @@ setInterval(() => {
     if (player.status === PlayerStatus.DISCONNECTED) {
       const timeSinceLastSeen = now - player.lastSeen;
       if (timeSinceLastSeen > 60000) {
-        // 60 seconds
         gameState.players.delete(socketId);
         console.log(`Removed inactive player: ${player.name}`);
       }
     }
   });
-}, 30000); // Check every 30 seconds
+}, 30000);
 
 // Start first round after short delay
 setTimeout(startNewRound, 3000);
@@ -391,7 +387,6 @@ function getNetworkIPs() {
 
   for (const name of Object.keys(interfaces)) {
     for (const iface of interfaces[name]) {
-      // Skip internal and non-IPv4 addresses
       if (iface.family === "IPv4" && !iface.internal) {
         addresses.push(iface.address);
       }
@@ -405,16 +400,13 @@ function getNetworkIPs() {
 process.on("SIGTERM", () => {
   console.log("SIGTERM received, closing server gracefully...");
 
-  // Notify all players
   io.emit("server-shutdown", { message: "Server is restarting..." });
 
-  // Close server
   server.close(() => {
     console.log("Server closed");
     process.exit(0);
   });
 
-  // Force close after 10 seconds
   setTimeout(() => {
     console.error("Forced shutdown after timeout");
     process.exit(1);
@@ -426,7 +418,7 @@ server.listen(PORT, "0.0.0.0", () => {
   const networkIPs = getNetworkIPs();
   const env = process.env.NODE_ENV || "development";
 
-  console.log("\n🎮 GuessQuest Server Started!\n");
+  console.log("\n🎮 WhatYouSee Server Started!\n");
   console.log("┌─────────────────────────────────────────┐");
   console.log(`│ Environment: ${env.toUpperCase().padEnd(28)}│`);
   console.log(

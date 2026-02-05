@@ -1,6 +1,6 @@
 {
-  "name": "GuessQuest - Multiplayer Guessing Game",
-  "short_name": "GuessQuest",
+  "name": "WhatYouSee - Multiplayer Guessing Game",
+  "short_name": "WhatYouSee",
   "description": "Spot. Count. Win. Play the ultimate multiplayer hidden object game!",
   "start_url": "/",
   "display": "standalone",

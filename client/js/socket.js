@@ -17,26 +17,21 @@ const gameState = {
   hasAnsweredThisRound: false,
 };
 
-// Prevent duplicate event listeners
 let eventListenersAttached = false;
-
-// Heartbeat interval
 let heartbeatInterval = null;
 
 // Socket event listeners
 socket.on("connect", () => {
   console.log("✅ Connected to server");
 
-  // Start heartbeat
   if (heartbeatInterval) {
     clearInterval(heartbeatInterval);
   }
 
   heartbeatInterval = setInterval(() => {
     socket.emit("heartbeat");
-  }, 15000); // Every 15 seconds
+  }, 15000);
 
-  // Rejoin if we have a player name (reconnection)
   if (gameState.playerName) {
     console.log("🔄 Reconnecting as:", gameState.playerName);
     socket.emit("join-game", gameState.playerName);
@@ -47,14 +42,12 @@ socket.on("connect", () => {
 socket.on("disconnect", (reason) => {
   console.log("❌ Disconnected from server:", reason);
 
-  // Clear heartbeat
   if (heartbeatInterval) {
     clearInterval(heartbeatInterval);
     heartbeatInterval = null;
   }
 
   if (reason === "io server disconnect") {
-    // Server disconnected us, try to reconnect
     socket.connect();
   }
 
@@ -86,15 +79,12 @@ function attachSocketListeners() {
     gameState.players = data.players;
     console.log("🎮 Joined game as:", gameState.playerId);
 
-    // Switch to game screen
     document.getElementById("join-screen").classList.add("hidden");
     document.getElementById("game-screen").classList.remove("hidden");
 
-    // Update UI
     updateScoreboard(data.players);
-    addSystemMessage(`Welcome to GuessQuest! 🎉`);
+    addSystemMessage(`Welcome to WhatYouSee! 🎉`);
 
-    // Show help on first join
     if (window.checkFirstTimePlayer) {
       window.checkFirstTimePlayer();
     }
@@ -108,10 +98,9 @@ function attachSocketListeners() {
   socket.on("round-start", (data) => {
     gameState.roundActive = true;
     gameState.currentRound = data;
-    gameState.hasAnsweredThisRound = false; // Reset for new round
+    gameState.hasAnsweredThisRound = false;
     console.log("🎯 Round started:", data);
 
-    // Update UI
     displayRoundStart(data);
     hideRoundEndOverlay();
   });
@@ -123,7 +112,6 @@ function attachSocketListeners() {
   socket.on("chat-message", (data) => {
     addChatMessage(data);
 
-    // Show wrong feedback if it's the current player
     if (data.playerId === gameState.playerId && data.isWrong) {
       if (window.showWrongFeedback) {
         window.showWrongFeedback();
@@ -146,12 +134,10 @@ function attachSocketListeners() {
 
     addSystemMessage(`🎉 You guessed correctly! (+${data.points} points)`);
 
-    // Show visual feedback
     if (window.showCorrectFeedback) {
       window.showCorrectFeedback();
     }
 
-    // Disable input after correct answer
     const chatInput = document.getElementById("chat-input");
     if (chatInput) {
       chatInput.disabled = true;
@@ -160,7 +146,7 @@ function attachSocketListeners() {
   });
 
   socket.on("correct-guess-others", (data) => {
-    console.log("👏 Someone guessed correctly:", data);
+    console.log("👍 Someone guessed correctly:", data);
 
     addSystemMessage(
       `${data.playerName} guessed correctly! (+${data.points} points)`,
@@ -171,7 +157,6 @@ function attachSocketListeners() {
     gameState.players = data.players;
     updateScoreboard(data.players);
 
-    // Animate score change if we have the data
     if (data.winnerId && data.points) {
       const winner = data.players.find((p) => p.id === data.winnerId);
       if (winner && window.animateScoreChange) {
@@ -206,7 +191,6 @@ function attachSocketListeners() {
   });
 }
 
-// Call this immediately
 attachSocketListeners();
 
 // Helper functions
@@ -220,7 +204,6 @@ function submitGuess(guess) {
     return;
   }
 
-  // Client-side check for already answered
   if (gameState.hasAnsweredThisRound) {
     if (window.showAlreadyAnsweredMessage) {
       window.showAlreadyAnsweredMessage();
@@ -236,5 +219,5 @@ window.gameSocket = {
   joinGame,
   submitGuess,
   getGameState: () => gameState,
-  socket: socket, // Expose socket for direct access if needed
+  socket: socket,
 };

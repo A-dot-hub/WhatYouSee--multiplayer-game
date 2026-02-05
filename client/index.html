@@ -9,21 +9,18 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="description"
-    content="GuessQuest - Multiplayer image guessing game. Find hidden objects, race against time, and win together!">
-  <title>GuessQuest - Multiplayer Image Guessing Game</title>
+    content="WhatYouSee - Multiplayer image guessing game. Find hidden objects, race against time, and win together!">
+  <title>WhatYouSee - Multiplayer Image Guessing Game</title>
 
-  <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
     href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap"
     rel="stylesheet">
 
-  <!-- Stylesheets -->
   <link rel="stylesheet" href="css/main.css">
   <link rel="stylesheet" href="css/game.css">
 
-  <!-- Socket.IO -->
   <script src="/socket.io/socket.io.js"></script>
 </head>
 
@@ -31,7 +28,7 @@
   <!-- Join Screen -->
   <div id="join-screen" class="screen">
     <div class="join-container">
-      <h1 class="game-title">GuessQuest</h1>
+      <h1 class="game-title">WhatYouSee</h1>
       <p class="game-subtitle">Find hidden objects. Race against time. Win together!</p>
       <form id="join-form">
         <input type="text" id="player-name-input" placeholder="Enter your name" maxlength="20" autocomplete="off"
@@ -107,12 +104,12 @@
                 <input type="text" id="chat-input" placeholder="Type your guess..." autocomplete="off" maxlength="100"
                   aria-label="Your guess">
                 <button type="submit" class="btn-send" aria-label="Submit guess">
-                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"
                     aria-hidden="true">
-                    <path d="M22 2L11 13" stroke="currentColor" stroke-width="2.0" stroke-linecap="round"
+                    <path d="M22 2L11 13" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                       stroke-linejoin="round" />
-                    <path d="M22 2L15 22L11 13L2 9L22 2Z" stroke="currentColor" stroke-width="2.5"
-                      stroke-linecap="round" stroke-linejoin="round" />
+                    <path d="M22 2L15 22L11 13L2 9L22 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                      stroke-linejoin="round" />
                   </svg>
                 </button>
               </div>
@@ -123,9 +120,8 @@
       </div>
     </div>
 
-    <!-- Floating Help Button -->
-    <button id="help-button" class="help-button" aria-label="Show help" onclick="window.showHelpModal()"
-      style="position: fixed; bottom: 1rem; right: 1rem; width: 48px; height: 48px; background: var(--accent); border: none; border-radius: 50%; color: var(--bg-dark); font-size: 1.5rem; font-weight: 700; cursor: pointer; box-shadow: var(--shadow-lg); z-index: 100; display: flex; align-items: center; justify-content: center; transition: all 0.2s ease;">
+    <!-- Draggable Help Button -->
+    <button id="help-button" class="help-button draggable" aria-label="Show help">
       ?
     </button>
 
@@ -150,24 +146,11 @@
     </div>
   </div>
 
-  <!-- Scripts -->
   <script src="js/timer.js"></script>
   <script src="js/chat.js"></script>
   <script src="js/ui.js"></script>
   <script src="js/socket.js"></script>
   <script src="js/game.js"></script>
-
-  <!-- Add hover effect for help button -->
-  <style>
-    .help-button:hover {
-      background: var(--secondary) !important;
-      transform: scale(1.1);
-    }
-
-    .help-button:active {
-      transform: scale(0.95);
-    }
-  </style>
 </body>
 
 </html>

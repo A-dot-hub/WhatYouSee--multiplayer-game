@@ -21,24 +21,20 @@ class ImagePicker {
   }
 
   getRandomImage() {
-    // Check if we have images
     if (this.images.length === 0) {
       console.error("No images available in images.json");
       return null;
     }
 
-    // Reset if all images used
     if (this.usedImageIds.size >= this.images.length) {
       this.usedImageIds.clear();
       console.log("All images used, resetting pool");
     }
 
-    // Get unused images
     const availableImages = this.images.filter(
       (img) => !this.usedImageIds.has(img.id),
     );
 
-    // Fallback if somehow no available images
     if (availableImages.length === 0) {
       this.usedImageIds.clear();
       const shuffled = shuffle(this.images);
@@ -47,11 +43,9 @@ class ImagePicker {
       return selected;
     }
 
-    // Shuffle and pick one
     const shuffled = shuffle(availableImages);
     const selected = shuffled[0];
 
-    // Validate selected image has required fields
     if (
       !selected ||
       !selected.url ||
@@ -62,7 +56,6 @@ class ImagePicker {
       return null;
     }
 
-    // Mark as used
     this.usedImageIds.add(selected.id);
 
     return selected;
