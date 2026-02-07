@@ -1,11 +1,11 @@
 class ScoreManager {
-  constructor() {
-    // Points: 100 for first correct answer, 50 for others
-  }
-
-  calculatePoints(position) {
-    return position === 1 ? 100 : 50;
+  /**
+   * Calculates points based on whether the player was the first to guess correctly.
+   * @param {boolean} isFirst - True if the player is the first to guess in the round.
+   * @returns {number} Points awarded.
+   */
+  calculatePoints(isFirst) {
+    return isFirst ? 100 : 50;
   }
 }
-
 module.exports = ScoreManager;

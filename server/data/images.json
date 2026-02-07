@@ -4,21 +4,21 @@
       "id": "img_0001",
       "url": "https://cdn.jsdelivr.net/gh/abhishekjaiswar224-ctrl/illusion-game-images@main/img_0001.webp",
       "mode": "object",
-      "question": "How many hidden objects can you find?",
-      "answer": 5
+      "question": "How many hidden animal can you find?",
+      "answer": 6
     },
     {
       "id": "img_0002",
       "url": "https://cdn.jsdelivr.net/gh/abhishekjaiswar224-ctrl/illusion-game-images@main/img_0002.webp",
       "mode": "object",
-      "question": "How many hidden objects can you find?",
-      "answer": 5
+      "question": "which animal do you see?",
+      "answer": "panda"
     },
     {
       "id": "img_0003",
       "url": "https://cdn.jsdelivr.net/gh/abhishekjaiswar224-ctrl/illusion-game-images@main/img_0003.webp",
       "mode": "object",
-      "question": "How many hidden objects can you find?",
+      "question": "How many hidden animal can you find?",
       "answer": 5
     },
     {
@@ -26,42 +26,132 @@
       "url": "https://cdn.jsdelivr.net/gh/abhishekjaiswar224-ctrl/illusion-game-images@main/img_0004.webp",
       "mode": "object",
       "question": "How many hidden objects can you find?",
-      "answer": 5
+      "answer": 8
     },
     {
       "id": "img_0005",
       "url": "https://cdn.jsdelivr.net/gh/abhishekjaiswar224-ctrl/illusion-game-images@main/img_0005.webp",
       "mode": "object",
-      "question": "How many hidden objects can you find?",
-      "answer": 5
+      "question": "How many hidden animal can you find?",
+      "answer": 2
     },
     {
       "id": "img_0006",
       "url": "https://cdn.jsdelivr.net/gh/abhishekjaiswar224-ctrl/illusion-game-images@main/img_0006.webp",
       "mode": "object",
-      "question": "How many hidden objects can you find?",
-      "answer": 5
+      "question": "How many hidden animal can you find?",
+      "answer": 6
     },
     {
       "id": "img_0007",
       "url": "https://cdn.jsdelivr.net/gh/abhishekjaiswar224-ctrl/illusion-game-images@main/img_0007.webp",
       "mode": "object",
-      "question": "How many hidden objects can you find?",
-      "answer": 5
+      "question": "which hidden animal can you find?",
+      "answer": "wolf"
     },
     {
       "id": "img_0008",
       "url": "https://cdn.jsdelivr.net/gh/abhishekjaiswar224-ctrl/illusion-game-images@main/img_0008.webp",
       "mode": "object",
-      "question": "How many hidden objects can you find?",
-      "answer": 5
+      "question": "which  hidden animal can you See?",
+      "answer": "monkey"
     },
     {
       "id": "img_0009",
       "url": "https://cdn.jsdelivr.net/gh/abhishekjaiswar224-ctrl/illusion-game-images@main/img_0009.webp",
       "mode": "object",
-      "question": "How many hidden objects can you find?",
-      "answer": 5
-    }
+      "question": "How many hidden animal can you find?",
+      "answer": 6
+    },
+    {
+      "id": "img_0005",
+      "url": "https://cdn.jsdelivr.net/gh/abhishekjaiswar224-ctrl/illusion-game-images@main/img_0005.webp",
+      "mode": "object",
+      "question": "which hidden animal do you See?",
+      "answer": "wolf"
+    },
+    {
+      "id": "img_00010",
+      "url": "https://cdn.jsdelivr.net/gh/abhishekjaiswar224-ctrl/illusion-game-images@main/img_00010.webp",
+      "mode": "object",
+      "question": "How many heart shapes are hidden in this city street?",
+      "answer": "9"
+    },
+    {
+  "id": "img_00011",
+  "url": "https://cdn.jsdelivr.net/gh/abhishekjaiswar224-ctrl/illusion-game-images@main/img_00011.webp",
+  "mode": "object",
+  "question": "How many teddy bears are hidden throughout this toy store?",
+  "answer": "10"
+},
+{
+  "id": "img_00012",
+  "url": "https://cdn.jsdelivr.net/gh/abhishekjaiswar224-ctrl/illusion-game-images@main/img_00012.webp",
+  "mode": "object",
+  "question": "How many butterflies are camouflaged in this magical forest?",
+  "answer": "8"
+},
+{
+  "id": "img_00013",
+  "url": "https://cdn.jsdelivr.net/gh/abhishekjaiswar224-ctrl/illusion-game-images@main/img_00013.webp",
+  "mode": "object",
+  "question": "How many cats are hidden in this garden scene?",
+  "answer": "7"
+},
+{
+  "id": "img_00014",
+  "url": "https://cdn.jsdelivr.net/gh/abhishekjaiswar224-ctrl/illusion-game-images@main/img_00014.webp",
+  "mode": "object",
+  "question": "find all numbers hidden in this kitchen?",
+  "answer": "12345"
+},
+{
+  "id": "img_00016",
+  "url": "https://cdn.jsdelivr.net/gh/abhishekjaiswar224-ctrl/illusion-game-images@main/img_00016.webp",
+  "mode": "object",
+  "question": "How many owls are concealed in this cozy library?",
+  "answer": "8"
+},
+{
+  "id": "img_00017",
+  "url": "https://cdn.jsdelivr.net/gh/abhishekjaiswar224-ctrl/illusion-game-images@main/img_00017.webp",
+  "mode": "object",
+  "question": "How many birds are hiding in this peaceful park?",
+  "answer": "6"
+},
+{
+  "id": "img_00018",
+  "url": "https://cdn.jsdelivr.net/gh/abhishekjaiswar224-ctrl/illusion-game-images@main/img_00018.webp",
+  "mode": "object",
+  "question": "How many crescent moons are floating in this space scene?",
+  "answer": "5"
+},
+{
+  "id": "img_00019",
+  "url": "https://cdn.jsdelivr.net/gh/abhishekjaiswar224-ctrl/illusion-game-images@main/img_00019.webp",
+  "mode": "object",
+  "question": "find name of person?",
+  "answer": "BRAT"
+}
+,
+{
+  "id": "img_00020",
+  "url": "https://cdn.jsdelivr.net/gh/abhishekjaiswar224-ctrl/illusion-game-images@main/img_00020.webp",
+  "mode": "object",
+  "question": "Which hidden animal can you spot?",
+  "answer": "bear"
+},
+{
+  "id": "img_00021",
+  "url": "https://cdn.jsdelivr.net/gh/abhishekjaiswar224-ctrl/illusion-game-images@main/img_00021.webp",
+  "mode": "object",
+  "question": "How many zero can you see?",
+  "answer": "6"
+}
+
+
+    
+
+
   ]
 }

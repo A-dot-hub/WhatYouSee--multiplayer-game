@@ -1,18 +1,17 @@
 {
-  "name": "guessquest-multiplayer-game",
+  "name": "whatyousee-game",
   "version": "1.0.0",
-  "description": "Scribble-like multiplayer guessing game where server selects images and players guess answers",
+  "description": "WhatYouSee - Multiplayer hidden object guessing game",
   "main": "server/server.js",
   "scripts": {
     "start": "node server/server.js",
     "dev": "nodemon server/server.js"
   },
   "keywords": [
-    "multiplayer",
     "game",
-    "guessing",
+    "multiplayer",
     "socket.io",
-    "realtime"
+    "mobile"
   ],
   "author": "",
   "license": "MIT",
@@ -22,5 +21,8 @@
   },
   "devDependencies": {
     "nodemon": "^3.0.1"
+  },
+  "engines": {
+    "node": ">=16.0.0"
   }
 }

@@ -1,188 +1,112 @@
-// Initialize game when DOM is loaded
 document.addEventListener("DOMContentLoaded", () => {
-  initializeGame();
-  initializeDraggableHelp();
-});
-
-function initializeGame() {
-  console.log("🎮 Initializing WhatYouSee...");
-
-  // Join form handler
+  const myState = { id: null };
   const joinForm = document.getElementById("join-form");
-  const playerNameInput = document.getElementById("player-name-input");
-
-  joinForm.addEventListener("submit", (e) => {
-    e.preventDefault();
-    const playerName = playerNameInput.value.trim();
-
-    if (playerName) {
-      playerNameInput.disabled = true;
-      joinForm.querySelector("button").disabled = true;
-
-      window.gameSocket.joinGame(playerName);
-    }
-  });
-
-  // Chat form handler
   const chatForm = document.getElementById("chat-form");
   const chatInput = document.getElementById("chat-input");
+  const helpBtn = document.getElementById("help-btn");
 
-  chatForm.addEventListener("submit", (e) => {
+  window.ui.initDraggable(helpBtn);
+
+  joinForm.onsubmit = (e) => {
     e.preventDefault();
-    const guess = chatInput.value.trim();
+    const name = document.getElementById("player-name-input").value;
+    window.gameSocket.join(name);
+  };
 
-    if (guess) {
-      window.gameSocket.submitGuess(guess);
+  chatForm.onsubmit = (e) => {
+    e.preventDefault();
+    const val = chatInput.value.trim();
+    if (val) {
+      window.gameSocket.guess(val);
       chatInput.value = "";
     }
+  };
+
+  window.gameSocket.socket.on("player-joined", (data) => {
+    myState.id = data.playerId;
+    document.getElementById("join-screen").classList.add("hidden");
+    document.getElementById("game-screen").classList.remove("hidden");
+    window.ui.updateScoreboard(data.players, myState.id);
   });
 
-  // Auto-focus on chat input when clicking anywhere in game screen
-  const gameScreen = document.getElementById("game-screen");
-  gameScreen.addEventListener("click", (e) => {
-    if (!e.target.matches("input, button, img")) {
-      chatInput.focus();
-    }
+  window.gameSocket.socket.on("player-list-update", (players) => {
+    window.ui.updateScoreboard(players, myState.id);
   });
 
-  playerNameInput.focus();
-
-  document.addEventListener("visibilitychange", () => {
-    if (
-      !document.hidden &&
-      !document.getElementById("join-screen").classList.contains("hidden")
-    ) {
-      playerNameInput.focus();
-    }
+  window.gameSocket.socket.on("round-start", (data) => {
+    document.getElementById("round-number").innerText = data.roundNumber;
+    document.getElementById("question-text").innerText = data.question;
+    document.getElementById("image-container").innerHTML =
+      `<img src="${data.imageUrl}">`;
+    document.getElementById("round-end-overlay").classList.add("hidden");
+    window.updateTimer(data.timeRemaining);
   });
 
-  console.log("✅ Game initialized");
-}
+  window.gameSocket.socket.on("timer-update", (val) => window.updateTimer(val));
 
-// Draggable Help Button
-function initializeDraggableHelp() {
-  const helpButton = document.getElementById("help-button");
-  if (!helpButton) return;
-
-  let isDragging = false;
-  let currentX;
-  let currentY;
-  let initialX;
-  let initialY;
-  let xOffset = 0;
-  let yOffset = 0;
-
-  // Get saved position from localStorage
-  const savedPosition = localStorage.getItem("help-button-position");
-  if (savedPosition) {
-    try {
-      const { x, y } = JSON.parse(savedPosition);
-      xOffset = x;
-      yOffset = y;
-      setTranslate(x, y, helpButton);
-    } catch (e) {
-      console.error("Failed to parse saved position");
-    }
-  }
-
-  helpButton.addEventListener("touchstart", dragStart, { passive: false });
-  helpButton.addEventListener("touchend", dragEnd);
-  helpButton.addEventListener("touchmove", drag, { passive: false });
-
-  helpButton.addEventListener("mousedown", dragStart);
-  helpButton.addEventListener("mouseup", dragEnd);
-  helpButton.addEventListener("mousemove", drag);
-
-  // Click to show help (when not dragging)
-  let clickStartTime = 0;
-  let clickStartPos = { x: 0, y: 0 };
-
-  helpButton.addEventListener("touchstart", (e) => {
-    clickStartTime = Date.now();
-    const touch = e.touches[0];
-    clickStartPos = { x: touch.clientX, y: touch.clientY };
+  window.gameSocket.socket.on("chat-message", (data) => {
+    window.addMessage(
+      data.playerName,
+      data.message,
+      data.isWrong ? "wrong" : "normal",
+    );
+    // Show flash message for player guesses with bold name
+    window.ui.showFlashMessage(
+      `<strong>${data.playerName}:</strong> ${data.message}`,
+      "guess",
+    );
   });
 
-  helpButton.addEventListener("touchend", (e) => {
-    const clickDuration = Date.now() - clickStartTime;
-    const touch = e.changedTouches[0];
-    const distance = Math.sqrt(
-      Math.pow(touch.clientX - clickStartPos.x, 2) +
-        Math.pow(touch.clientY - clickStartPos.y, 2),
+  window.gameSocket.socket.on("correct-guess-self", (data) => {
+    window.addMessage("System", `You got it! +${data.points} pts`, "system");
+  });
+
+  window.gameSocket.socket.on("correct-guess-others", (data) => {
+    window.addMessage("System", `${data.name} guessed correctly!`, "system");
+  });
+
+  window.gameSocket.socket.on("round-end", (data) => {
+    const overlay = document.getElementById("round-end-overlay");
+    const winnersList = document.getElementById("overlay-winners");
+    document.getElementById("answer-reveal").innerText = data.answer;
+
+    // Show green system flash message for correct word
+    window.ui.showFlashMessage(
+      `The word was <strong>'${data.answer}'</strong>`,
+      "system",
     );
 
-    if (clickDuration < 200 && distance < 10 && !isDragging) {
-      if (window.showHelpModal) {
-        window.showHelpModal();
-      }
-    }
-  });
+    winnersList.innerHTML = "";
 
-  helpButton.addEventListener("click", (e) => {
-    if (!isDragging && window.showHelpModal) {
-      window.showHelpModal();
-    }
-  });
+    if (data.correctGuessers.length > 0) {
+      data.correctGuessers.forEach((name, index) => {
+        const rank = index + 1;
+        let rankSuffix = "th";
+        if (rank === 1) rankSuffix = "st";
+        else if (rank === 2) rankSuffix = "nd";
+        else if (rank === 3) rankSuffix = "rd";
 
-  function dragStart(e) {
-    if (e.type === "touchstart") {
-      initialX = e.touches[0].clientX - xOffset;
-      initialY = e.touches[0].clientY - yOffset;
+        const winnerItem = document.createElement("div");
+        winnerItem.className = `winner-item rank-${rank}`;
+        winnerItem.innerHTML = `
+          <div class="winner-rank-badge">${rank}${rankSuffix}</div>
+          <div class="winner-name">${name}</div>
+        `;
+        winnersList.appendChild(winnerItem);
+      });
     } else {
-      initialX = e.clientX - xOffset;
-      initialY = e.clientY - yOffset;
+      winnersList.innerHTML = `<div style="color: #666; font-style: italic; margin-top: 10px;">Nobody guessed correctly!</div>`;
     }
 
-    if (e.target === helpButton) {
-      isDragging = true;
-      helpButton.classList.add("dragging");
-    }
-  }
+    overlay.classList.remove("hidden");
 
-  function dragEnd(e) {
-    initialX = currentX;
-    initialY = currentY;
-
-    isDragging = false;
-    helpButton.classList.remove("dragging");
-
-    // Save position
-    localStorage.setItem(
-      "help-button-position",
-      JSON.stringify({ x: xOffset, y: yOffset }),
-    );
-  }
-
-  function drag(e) {
-    if (isDragging) {
-      e.preventDefault();
-
-      if (e.type === "touchmove") {
-        currentX = e.touches[0].clientX - initialX;
-        currentY = e.touches[0].clientY - initialY;
-      } else {
-        currentX = e.clientX - initialX;
-        currentY = e.clientY - initialY;
-      }
-
-      xOffset = currentX;
-      yOffset = currentY;
-
-      setTranslate(currentX, currentY, helpButton);
-    }
-  }
-
-  function setTranslate(xPos, yPos, el) {
-    // Keep button within viewport bounds
-    const rect = el.getBoundingClientRect();
-    const maxX = window.innerWidth - rect.width - 10;
-    const maxY = window.innerHeight - rect.height - 10;
-    const minX = 10;
-    const minY = 10;
-
-    xPos = Math.max(minX - rect.left, Math.min(xPos, maxX - rect.left));
-    yPos = Math.max(minY - rect.top, Math.min(yPos, maxY - rect.top));
-
-    el.style.transform = `translate3d(${xPos}px, ${yPos}px, 0)`;
-  }
-}
+    let left = 5;
+    const nt = document.getElementById("next-timer");
+    if (nt) nt.innerText = left;
+    const int = setInterval(() => {
+      left--;
+      if (nt) nt.innerText = left;
+      if (left <= 0) clearInterval(int);
+    }, 1000);
+  });
+});
