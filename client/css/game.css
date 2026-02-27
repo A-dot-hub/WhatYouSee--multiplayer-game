@@ -2,6 +2,8 @@
   display: flex;
   flex-direction: column;
   height: 100vh;
+  height: 100dvh;
+  /* Use dynamic viewport height for mobile */
   width: 100%;
   background: #111;
 }
@@ -188,6 +190,8 @@
   flex-direction: column;
   background: #fff;
   min-width: 0;
+  overflow: hidden;
+  /* Prevent container from growing beyond parent */
 }
 
 .chat-messages {
@@ -196,6 +200,8 @@
   padding: 8px;
   font-size: 13px;
   color: #333;
+  min-height: 0;
+  /* Allow shrinking below content size */
 }
 
 /* Perfect Fit Chat Form */

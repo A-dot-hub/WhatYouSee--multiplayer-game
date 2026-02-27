@@ -4,13 +4,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport"
-    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
   <title>whatUsee - Multiplayer Trivia</title>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/main.css">
   <link rel="stylesheet" href="css/game.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-
   <script src="/socket.io/socket.io.js"></script>
 </head>
 
@@ -34,7 +32,7 @@
   <div id="game-screen" class="screen hidden">
     <div class="game-layout">
       <header class="game-header">
-        <div class="badge round-badge">Round <span id="round-number">1</span></div>
+        <div class="badge round-badge">RD <span id="round-number">1</span></div>
         <div class="header-question" id="question-text">Look closely...</div>
         <div class="timer-badge" id="timer-text">45</div>
       </header>
@@ -73,29 +71,27 @@
       <div class="modal-content">
         <h2>How to Play</h2>
         <ul class="help-list">
-          <style>
-            .icon {
-              color: #ff8c00;
-              margin-right: 8px;
-            }
-          </style>
-          
-          <li>
-            <i class="fa-solid fa-eye icon"></i>
-            <strong>See:</strong>Look at the image carefully.
-          </li>
-          
-          <li>
-            <i class="fa-solid fa-bullseye icon"></i>
-            <strong>Guess:</strong>Type your answer in chat.
-          </li>
-          
-          <li>
-            <i class="fa-solid fa-trophy icon"></i>
-            <strong>Score:</strong>1st gets 100,others get 50!
-          </li>
-
-        </ul>
+        <style>
+          .icon {
+            color: #ff8c00;
+            margin-right: 8px;
+          }
+        </style>
+        
+        <li>
+          <i class="fa-solid fa-eye icon"></i>
+          <strong>See:</strong>Look at the image carefully.
+        </li>
+        
+        <li>
+          <i class="fa-solid fa-bullseye icon"></i>
+          <strong>Guess:</strong>Type your answer in chat.
+        </li>
+        
+        <li>
+          <i class="fa-solid fa-trophy icon"></i>
+          <strong>Score:</strong>1st gets 100,others get 50!
+        </li>
         <button class="btn-primary" onclick="document.getElementById('help-modal').classList.add('hidden')">Got
           it!</button>
       </div>
