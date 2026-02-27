@@ -17,7 +17,7 @@
     <div class="join-container">
       <div class="logo-wrapper">
         <h1 class="game-title">what<span>U</span>see</h1>
-        <p class="tagline">Multplayer Image Trivia</p>
+        <p class="tagline" id="dynamic-tagline">Guess Fast.</p>
       </div>
       <form id="join-form" class="join-card">
         <div class="input-group">
@@ -70,8 +70,7 @@
     <div id="help-modal" class="modal hidden">
       <div class="modal-content">
         <h2>How to Play</h2>
-        <ul class="help-list">
-        <style>
+        <ul class="help-list"><style>
           .icon {
             color: #ff8c00;
             margin-right: 8px;
@@ -92,6 +91,7 @@
           <i class="fa-solid fa-trophy icon"></i>
           <strong>Score:</strong>1st gets 100,others get 50!
         </li>
+        </ul>
         <button class="btn-primary" onclick="document.getElementById('help-modal').classList.add('hidden')">Got
           it!</button>
       </div>
@@ -112,6 +112,10 @@
   <script src="js/ui.js"></script>
   <script src="js/socket.js"></script>
   <script src="js/game.js"></script>
+  <script src="js/landing.js"></script>
 </body>
 
 </html>
+
+
+

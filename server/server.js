@@ -4,14 +4,21 @@ const socketIO = require("socket.io");
 const path = require("path");
 const RoundManager = require("./game/roundManager");
 const ScoreManager = require("./game/scoreManager");
-const os = require("os");
 
 const app = express();
 const server = http.createServer(app);
-const io = socketIO(server, { cors: { origin: "*" } });
+
+const io = socketIO(server, {
+  cors: { origin: "*" },
+});
+
 const PORT = process.env.PORT || 3000;
 
 app.use(express.static(path.join(__dirname, "../client")));
+
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "../client/index.html"));
+});
 
 const gameState = {
   players: new Map(),
@@ -32,12 +39,12 @@ function startNextRound() {
   gameState.currentRound = gameState.roundManager.startNewRound();
 
   if (!gameState.currentRound) {
-    // If we run out of images, just loop them
     gameState.roundManager.imagePicker.usedImageIds.clear();
     gameState.currentRound = gameState.roundManager.startNewRound();
   }
 
   gameState.isRoundActive = true;
+
   io.emit("round-start", {
     roundNumber: gameState.currentRound.roundNumber,
     question: gameState.currentRound.question,
@@ -57,6 +64,7 @@ function startNextRound() {
 
 function endRound() {
   if (!gameState.isRoundActive) return;
+
   gameState.isRoundActive = false;
   clearInterval(gameState.timerInterval);
 
@@ -70,11 +78,9 @@ function endRound() {
     correctGuessers: winnerNames,
   });
 
-  // Reset statuses
   gameState.players.forEach((p) => (p.status = "idle"));
   io.emit("player-list-update", Array.from(gameState.players.values()));
 
-  // Next round auto-restart
   gameState.roundEndingTimeout = setTimeout(startNextRound, 5000);
 }
 
@@ -86,6 +92,7 @@ io.on("connection", (socket) => {
       score: 0,
       status: "idle",
     };
+
     gameState.players.set(socket.id, player);
 
     socket.emit("player-joined", {
@@ -109,6 +116,7 @@ io.on("connection", (socket) => {
 
   socket.on("submit-guess", (guess) => {
     const player = gameState.players.get(socket.id);
+
     if (
       !player ||
       !gameState.isRoundActive ||
@@ -133,7 +141,6 @@ io.on("connection", (socket) => {
       socket.broadcast.emit("correct-guess-others", { name: player.name });
       io.emit("player-list-update", Array.from(gameState.players.values()));
 
-      // Check if everyone has guessed
       if (gameState.correctGuessers.size >= gameState.players.size) {
         endRound();
       }
@@ -149,6 +156,7 @@ io.on("connection", (socket) => {
   socket.on("disconnect", () => {
     gameState.players.delete(socket.id);
     gameState.correctGuessers.delete(socket.id);
+
     io.emit("player-list-update", Array.from(gameState.players.values()));
 
     if (gameState.players.size === 0) {
@@ -159,24 +167,6 @@ io.on("connection", (socket) => {
   });
 });
 
-// server.listen(PORT, "0.0.0.0", () => {
-//   console.log(`whatUsee server running on port ${PORT}`);
-// });
-
-server.listen(PORT, "0.0.0.0", () => {
-  const networkInterfaces = os.networkInterfaces();
-  let localIP = "localhost";
-
-  for (const iface of Object.values(networkInterfaces)) {
-    for (const i of iface) {
-      if (i.family === "IPv4" && !i.internal) {
-        localIP = i.address;
-        break;
-      }
-    }
-  }
-
-  console.log(`\n🔥 whatUsee server running`);
-  console.log(`Local:   http://localhost:${PORT}`);
-  console.log(`Network: http://${localIP}:${PORT}  (use this on mobile)`);
+server.listen(PORT, () => {
+  console.log(`🔥 whatUsee server running on port ${PORT}`);
 });
