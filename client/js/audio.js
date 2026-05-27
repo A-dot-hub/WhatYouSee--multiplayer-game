@@ -39,6 +39,14 @@ class AudioManager {
     this.playOsc(440, 'sine', 0.3, 0.1);
     setTimeout(() => this.playOsc(880, 'sine', 0.5, 0.1), 150);
   }
+  playJoin() {
+    this.playOsc(523.25, 'sine', 0.2, 0.1); // C5
+    setTimeout(() => this.playOsc(659.25, 'sine', 0.3, 0.1), 100); // E5
+  }
+  playLeave() {
+    this.playOsc(659.25, 'sine', 0.2, 0.05); // E5
+    setTimeout(() => this.playOsc(523.25, 'sine', 0.3, 0.05), 100); // C5
+  }
 }
 
 window.AudioManager = new AudioManager();

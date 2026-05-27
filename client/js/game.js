@@ -1,6 +1,25 @@
 document.addEventListener("DOMContentLoaded", () => {
-  const myState = { id: null };
-  const joinForm = document.getElementById("join-form");
+  const myState = { 
+    id: null,
+    name: "",
+    roomCode: "",
+    isHost: false
+  };
+  
+  const screens = {
+    join: document.getElementById("join-screen"),
+    lobby: document.getElementById("lobby-screen"),
+    game: document.getElementById("game-screen")
+  };
+
+  const nameInput = document.getElementById("player-name-input");
+  const roomCodeInput = document.getElementById("room-code-input");
+  const createRoomBtn = document.getElementById("create-room-btn");
+  const joinRoomBtn = document.getElementById("join-room-btn");
+  const startGameBtn = document.getElementById("start-game-btn");
+  const leaveLobbyBtn = document.getElementById("leave-lobby-btn");
+  const copyCodeBtn = document.getElementById("copy-code-btn");
+
   const chatForm = document.getElementById("chat-form");
   const chatInput = document.getElementById("chat-input");
   const helpBtn = document.getElementById("help-btn");
@@ -17,7 +36,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const themeBtns = document.querySelectorAll('.theme-btn');
   const fontSelect = document.getElementById('font-select');
 
-  // Font Preview Logic
   if (fontSelect) {
     fontSelect.onchange = () => {
       document.body.className = document.body.className.replace(/\bfont-\w+/g, '').trim();
@@ -41,21 +59,17 @@ document.addEventListener("DOMContentLoaded", () => {
       themeBtns.forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
       const theme = btn.dataset.theme;
-      // Temporarily apply theme to join screen
       document.body.className = document.body.className.replace(/\btheme-\w+/g, '').trim();
       if (theme !== 'orange') document.body.classList.add(`theme-${theme}`);
     };
   });
 
-  joinForm.onsubmit = (e) => {
-    e.preventDefault();
-    
-    // Apply Settings
+  function applySettings() {
     const activeTheme = document.querySelector('.theme-btn.active').dataset.theme;
     const activeFont = document.getElementById('font-select').value;
     const soundEnabled = document.getElementById('sound-toggle').checked;
 
-    document.body.className = ''; // Clear all
+    document.body.className = ''; 
     if (activeTheme !== 'orange') document.body.classList.add(`theme-${activeTheme}`);
     document.body.classList.add(activeFont);
 
@@ -64,10 +78,63 @@ document.addEventListener("DOMContentLoaded", () => {
     } else {
       window.AudioManager.enabled = false;
     }
+  }
 
-    const name = document.getElementById("player-name-input").value;
+  function showScreen(screenId) {
+    Object.values(screens).forEach(s => s.classList.add("hidden"));
+    screens[screenId].classList.remove("hidden");
+  }
+
+  createRoomBtn.onclick = () => {
+    console.log("Create Room clicked. gameSocket:", window.gameSocket);
+    const name = nameInput.value.trim();
+    if (!name) return nameInput.focus();
+    applySettings();
     myState.name = name;
-    window.gameSocket.join(name);
+    
+    if (window.gameSocket && typeof window.gameSocket.createRoom === 'function') {
+      window.gameSocket.createRoom(name);
+    } else {
+      console.error("window.gameSocket.createRoom is not available!");
+      window.ui.showFlashMessage("Error: Socket connection incomplete. Please refresh.", "system");
+    }
+    window.AudioManager.playClick();
+  };
+
+  joinRoomBtn.onclick = () => {
+    console.log("Join Room clicked. gameSocket:", window.gameSocket);
+    const name = nameInput.value.trim();
+    const code = roomCodeInput.value.trim();
+    if (!name) return nameInput.focus();
+    if (!code) return roomCodeInput.focus();
+    applySettings();
+    myState.name = name;
+    myState.roomCode = code.toUpperCase();
+    
+    if (window.gameSocket && typeof window.gameSocket.joinRoom === 'function') {
+      window.gameSocket.joinRoom(myState.roomCode, name);
+    } else {
+      console.error("window.gameSocket.joinRoom is not available!");
+      window.ui.showFlashMessage("Error: Socket connection incomplete. Please refresh.", "system");
+    }
+    window.AudioManager.playClick();
+  };
+
+  startGameBtn.onclick = () => {
+    window.gameSocket.startGame();
+    window.AudioManager.playClick();
+  };
+
+  leaveLobbyBtn.onclick = () => {
+    window.gameSocket.leaveRoom();
+    showScreen('join');
+    window.AudioManager.playClick();
+  };
+
+  copyCodeBtn.onclick = () => {
+    navigator.clipboard.writeText(myState.roomCode);
+    window.ui.showFlashMessage("Room code copied to clipboard!", "system");
+    window.AudioManager.playClick();
   };
 
   chatForm.onsubmit = (e) => {
@@ -79,36 +146,81 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   };
 
-  window.gameSocket.socket.on("player-joined", (data) => {
-    myState.id = data.playerId;
-    document.getElementById("join-screen").classList.add("hidden");
-    document.getElementById("game-screen").classList.remove("hidden");
-    document.getElementById("round-end-overlay").classList.add("hidden");
-    
-    if (!data.isRoundActive) {
-      document.getElementById("question-text").innerText = "Waiting for next round...";
-      document.getElementById("image-container").innerHTML = '<div class="loader-wrapper"><div class="loader"></div><p style="margin-top:20px; color:var(--text-muted);">Round starting soon...</p></div>';
-    }
-    
-    window.ui.updateScoreboard(data.players, myState.id);
+  // Socket event handlers
+  window.gameSocket.socket.on("room-created", (data) => {
+    myState.roomCode = data.roomCode;
+    myState.isHost = true;
+    myState.id = data.player.id;
+    updateLobbyUI(data.players);
+    showScreen('lobby');
+    window.AudioManager.playJoin();
+  });
+
+  window.gameSocket.socket.on("room-joined", (data) => {
+    myState.roomCode = data.roomCode;
+    myState.id = data.player.id;
+    myState.isHost = data.player.isHost;
+    updateLobbyUI(data.players);
+    showScreen('lobby');
+    window.AudioManager.playJoin();
+  });
+
+  window.gameSocket.socket.on("room-error", (msg) => {
+    window.ui.showFlashMessage(msg, "system");
+    window.AudioManager.playWrong();
   });
 
   window.gameSocket.socket.on("player-list-update", (players) => {
+    const me = players.find(p => p.id === myState.id);
+    if (me) myState.isHost = me.isHost;
+    
+    if (!screens.lobby.classList.contains("hidden")) {
+      updateLobbyUI(players);
+    }
     window.ui.updateScoreboard(players, myState.id);
   });
 
+  function updateLobbyUI(players) {
+    document.getElementById("lobby-room-code").innerText = myState.roomCode;
+    document.getElementById("lobby-player-count").innerText = players.length;
+    const list = document.getElementById("lobby-player-list");
+    list.innerHTML = "";
+    
+    players.forEach(p => {
+      const card = document.createElement("div");
+      card.className = "lobby-player-card";
+      card.innerHTML = `
+        <div class="player-avatar">${p.name.charAt(0).toUpperCase()}</div>
+        <div class="player-name">${p.name}</div>
+        ${p.isHost ? '<div class="host-badge">HOST</div>' : ''}
+      `;
+      list.appendChild(card);
+    });
+
+    if (myState.isHost) {
+      startGameBtn.classList.remove("hidden");
+      document.getElementById("lobby-status-text").innerText = "You are the host. Tap Start when ready!";
+    } else {
+      startGameBtn.classList.add("hidden");
+      document.getElementById("lobby-status-text").innerText = "Waiting for host to start...";
+    }
+  }
+
   window.gameSocket.socket.on("round-start", (data) => {
+    if (!screens.game.classList.contains("hidden")) {
+      // If already in game, just start next round
+    } else {
+      showScreen('game');
+    }
+    
     totalRoundTime = data.totalDuration || data.timeRemaining;
     window.AudioManager.playRoundStart();
     document.getElementById("round-number").innerText = data.roundNumber;
     document.getElementById("question-text").innerText = data.question;
-    
-    // Ensure overlay is hidden at start of every round
     document.getElementById("round-end-overlay").classList.add("hidden");
     
     revealEngine.start(data.imageUrl, data.timeRemaining);
     
-    // Preload next image
     if (data.nextImageUrl) {
       const img = new Image();
       img.src = data.nextImageUrl;
@@ -128,7 +240,6 @@ document.addEventListener("DOMContentLoaded", () => {
       window.AudioManager.playWrong();
     }
     window.addMessage(data.playerName, data.message, data.isWrong ? 'wrong' : 'normal');
-    // Show flash message for player guesses with bold name
     window.ui.showFlashMessage(`<strong>${data.playerName}:</strong> ${data.message}`, 'guess');
   });
 
@@ -151,7 +262,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const winnersList = document.getElementById("overlay-winners");
     document.getElementById("answer-reveal").innerText = data.answer;
     
-    // Show green system flash message for correct word
     window.ui.showFlashMessage(`The word was <strong>'${data.answer}'</strong>`, 'system');
 
     winnersList.innerHTML = "";
