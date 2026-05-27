@@ -29,7 +29,171 @@ document.addEventListener("DOMContentLoaded", () => {
 
   window.ui.initDraggable(helpBtn);
 
-  // Theme Settings Logic
+  // Settings System
+  const settingsBtn = document.getElementById("settings-btn");
+  const settingsModal = document.getElementById("settings-modal");
+  const closeSettingsBtn = document.getElementById("close-settings");
+  
+  const settings = {
+    theme: localStorage.getItem("whatUsee_theme") || "orange",
+    font: localStorage.getItem("whatUsee_font") || "font-fredoka",
+    music: localStorage.getItem("whatUsee_music") !== "false",
+    sfx: localStorage.getItem("whatUsee_sfx") !== "false",
+    volume: parseInt(localStorage.getItem("whatUsee_volume") || "80"),
+    particles: localStorage.getItem("whatUsee_particles") !== "false",
+    chatVisible: localStorage.getItem("whatUsee_chatVisible") !== "false",
+    quality: localStorage.getItem("whatUsee_quality") || "medium",
+    reduceMotion: localStorage.getItem("whatUsee_reduceMotion") === "true",
+    highContrast: localStorage.getItem("whatUsee_highContrast") === "true"
+  };
+
+  function syncSettingsUI() {
+    document.getElementById("music-toggle").checked = settings.music;
+    document.getElementById("sfx-toggle").checked = settings.sfx;
+    document.getElementById("volume-slider").value = settings.volume;
+    document.getElementById("modal-font-select").value = settings.font;
+    document.getElementById("particles-toggle").checked = settings.particles;
+    document.getElementById("chat-visibility-toggle").checked = settings.chatVisible;
+    document.getElementById("reduce-motion-toggle").checked = settings.reduceMotion;
+    document.getElementById("high-contrast-toggle").checked = settings.highContrast;
+    
+    document.querySelectorAll(".theme-flavor-btn").forEach(btn => {
+      btn.classList.toggle("active", btn.dataset.flavor === settings.theme);
+    });
+    
+    document.querySelectorAll(".quality-btn").forEach(btn => {
+      btn.classList.toggle("active", btn.dataset.quality === settings.quality);
+    });
+
+    // Also sync the join screen font select
+    if (document.getElementById("font-select")) {
+        document.getElementById("font-select").value = settings.font;
+    }
+    
+    applyVisualSettings();
+  }
+
+  function applyVisualSettings() {
+    document.body.className = ''; 
+    if (settings.theme !== 'orange') document.body.classList.add(`theme-${settings.theme}`);
+    document.body.classList.add(settings.font);
+    document.body.classList.add(`quality-${settings.quality}`);
+    
+    if (settings.reduceMotion) document.body.classList.add('reduce-motion');
+    if (settings.highContrast) document.body.classList.add('high-contrast');
+    
+    const chatContainer = document.querySelector(".chat-container");
+    if (chatContainer) chatContainer.style.opacity = settings.chatVisible ? "1" : "0";
+    
+    window.AudioManager.enabled = settings.sfx;
+  }
+
+  // Initial Sync
+  syncSettingsUI();
+
+  settingsBtn.onclick = () => {
+    settingsModal.classList.remove("hidden");
+    window.AudioManager.playClick();
+  };
+
+  closeSettingsBtn.onclick = () => {
+    settingsModal.classList.add("hidden");
+    window.AudioManager.playClick();
+  };
+
+  // Setting Event Listeners
+  document.getElementById("music-toggle").onchange = (e) => {
+    settings.music = e.target.checked;
+    localStorage.setItem("whatUsee_music", settings.music);
+  };
+
+  document.getElementById("sfx-toggle").onchange = (e) => {
+    settings.sfx = e.target.checked;
+    localStorage.setItem("whatUsee_sfx", settings.sfx);
+    window.AudioManager.enabled = settings.sfx;
+  };
+
+  document.getElementById("reduce-motion-toggle").onchange = (e) => {
+    settings.reduceMotion = e.target.checked;
+    localStorage.setItem("whatUsee_reduceMotion", settings.reduceMotion);
+    applyVisualSettings();
+  };
+
+  document.getElementById("high-contrast-toggle").onchange = (e) => {
+    settings.highContrast = e.target.checked;
+    localStorage.setItem("whatUsee_highContrast", settings.highContrast);
+    applyVisualSettings();
+  };
+
+  document.getElementById("volume-slider").oninput = (e) => {
+    settings.volume = e.target.value;
+    localStorage.setItem("whatUsee_volume", settings.volume);
+    // Future: Apply volume to AudioManager
+  };
+
+  document.getElementById("modal-font-select").onchange = (e) => {
+    settings.font = e.target.value;
+    localStorage.setItem("whatUsee_font", settings.font);
+    applyVisualSettings();
+  };
+
+  document.getElementById("particles-toggle").onchange = (e) => {
+    settings.particles = e.target.checked;
+    localStorage.setItem("whatUsee_particles", settings.particles);
+  };
+
+  document.getElementById("chat-visibility-toggle").onchange = (e) => {
+    settings.chatVisible = e.target.checked;
+    localStorage.setItem("whatUsee_chatVisible", settings.chatVisible);
+    applyVisualSettings();
+  };
+
+  document.querySelectorAll(".theme-flavor-btn").forEach(btn => {
+    btn.onclick = () => {
+      settings.theme = btn.dataset.flavor;
+      localStorage.setItem("whatUsee_theme", settings.theme);
+      syncSettingsUI();
+      window.AudioManager.playClick();
+    };
+  });
+
+  document.querySelectorAll(".quality-btn").forEach(btn => {
+    btn.onclick = () => {
+      settings.quality = btn.dataset.quality;
+      localStorage.setItem("whatUsee_quality", settings.quality);
+      syncSettingsUI();
+      window.AudioManager.playClick();
+    };
+  });
+
+  document.getElementById("fullscreen-tog-btn").onclick = () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen();
+    } else {
+      document.exitFullscreen();
+    }
+  };
+
+  // Rounds selection logic for host
+  const roundBtns = document.querySelectorAll(".round-count-btn");
+  roundBtns.forEach(btn => {
+    btn.onclick = () => {
+       if (!myState.isHost) return;
+       const rounds = btn.dataset.rounds;
+       window.gameSocket.updateRoomSettings({ rounds });
+       window.AudioManager.playClick();
+    };
+  });
+
+  window.gameSocket.socket.on("room-settings-update", (data) => {
+    if (data.rounds) {
+      roundBtns.forEach(btn => {
+        btn.classList.toggle("active", btn.dataset.rounds == data.rounds);
+      });
+    }
+  });
+
+  // Keep original theme settings for Join screen but sync with main settings
   const themeCarousel = document.getElementById('theme-carousel');
   const prevThemeBtn = document.getElementById('prev-theme');
   const nextThemeBtn = document.getElementById('next-theme');
@@ -38,8 +202,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (fontSelect) {
     fontSelect.onchange = () => {
-      document.body.className = document.body.className.replace(/\bfont-\w+/g, '').trim();
-      document.body.classList.add(fontSelect.value);
+      settings.font = fontSelect.value;
+      localStorage.setItem("whatUsee_font", settings.font);
+      applyVisualSettings();
     };
   }
 
@@ -56,24 +221,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
   themeBtns.forEach(btn => {
     btn.onclick = () => {
-      themeBtns.forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      const theme = btn.dataset.theme;
-      document.body.className = document.body.className.replace(/\btheme-\w+/g, '').trim();
-      if (theme !== 'orange') document.body.classList.add(`theme-${theme}`);
+      settings.theme = btn.dataset.theme;
+      localStorage.setItem("whatUsee_theme", settings.theme);
+      syncSettingsUI();
     };
   });
 
   function applySettings() {
-    const activeTheme = document.querySelector('.theme-btn.active').dataset.theme;
-    const activeFont = document.getElementById('font-select').value;
-    const soundEnabled = document.getElementById('sound-toggle').checked;
+    // This is now redundant as applyVisualSettings is called via syncSettingsUI
+    applyVisualSettings();
 
-    document.body.className = ''; 
-    if (activeTheme !== 'orange') document.body.classList.add(`theme-${activeTheme}`);
-    document.body.classList.add(activeFont);
-
-    if (soundEnabled) {
+    if (settings.sfx || settings.music) {
       window.AudioManager.init();
     } else {
       window.AudioManager.enabled = false;
@@ -199,12 +357,46 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (myState.isHost) {
       startGameBtn.classList.remove("hidden");
+      document.getElementById("host-settings").classList.remove("hidden");
       document.getElementById("lobby-status-text").innerText = "You are the host. Tap Start when ready!";
     } else {
       startGameBtn.classList.add("hidden");
+      document.getElementById("host-settings").classList.add("hidden");
       document.getElementById("lobby-status-text").innerText = "Waiting for host to start...";
     }
   }
+
+  window.gameSocket.socket.on("game-over", (data) => {
+    const overlay = document.getElementById("round-end-overlay");
+    const title = document.getElementById("overlay-title");
+    const winnersList = document.getElementById("overlay-winners");
+    
+    title.innerText = "GAME OVER!";
+    window.AudioManager.playRoundStart(); // Celebration sound would be better
+    
+    winnersList.innerHTML = "";
+    // Sort players by score
+    const sorted = [...data.players].sort((a,b) => b.score - a.score);
+    
+    sorted.forEach((p, index) => {
+        const item = document.createElement("div");
+        item.className = `winner-item rank-${index + 1}`;
+        item.innerHTML = `<span>${index + 1}. ${p.name}</span> <span>${p.score} pts</span>`;
+        winnersList.appendChild(item);
+    });
+    
+    document.getElementById("answer-reveal").innerText = "Final Scores";
+    overlay.classList.remove("hidden");
+    
+    // Auto return to lobby after 10s
+    setTimeout(() => {
+        if (!screens.game.classList.contains("hidden")) {
+            overlay.classList.add("hidden");
+            title.innerText = "Round Finished!"; // Reset title
+            showScreen('lobby');
+        }
+    }, 10000);
+  });
 
   window.gameSocket.socket.on("round-start", (data) => {
     if (!screens.game.classList.contains("hidden")) {

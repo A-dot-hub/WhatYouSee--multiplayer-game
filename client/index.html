@@ -103,6 +103,15 @@
       </div>
 
       <div class="lobby-footer">
+        <div id="host-settings" class="host-settings hidden">
+           <label>ROUNDS TO PLAY</label>
+           <div class="rounds-selector">
+             <button type="button" class="round-count-btn" data-rounds="3">3</button>
+             <button type="button" class="round-count-btn active" data-rounds="5">5</button>
+             <button type="button" class="round-count-btn" data-rounds="10">10</button>
+             <button type="button" class="round-count-btn" data-rounds="15">15</button>
+           </div>
+        </div>
         <p id="lobby-status-text">Waiting for the host to start...</p>
         <button id="start-game-btn" class="btn-primary hidden">START GAME</button>
         <button id="leave-lobby-btn" class="btn-text">LEAVE ROOM</button>
@@ -115,7 +124,12 @@
       <header class="game-header">
         <div class="badge round-badge">RD <span id="round-number">1</span></div>
         <div class="header-question" id="question-text">Look closely...</div>
-        <div class="timer-badge" id="timer-text">45</div>
+        <div class="timer-container-wrapper">
+          <div class="timer-badge" id="timer-text">45</div>
+          <button id="settings-btn" class="settings-trigger" title="Settings">
+            <svg viewBox="0 0 24 24" width="24" height="24"><path fill="currentColor" d="M12 15.5A3.5 3.5 0 1 1 15.5 12A3.5 3.5 0 0 1 12 15.5M19.43 12.97c.04-.32.07-.64.07-.97c0-.33-.03-.66-.07-1.03l2.11-1.65c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.3-.61-.22l-2.49 1c-.52-.4-1.08-.73-1.69-.98l-.38-2.65C14.46 2.18 14.25 2 14 2h-4c-.25 0-.46.18-.5.42l-.38 2.65c-.61.25-1.17.59-1.69.98l-2.49-1c-.22-.09-.49 0-.61.22l-2 3.46c-.13.22-.07.49.12.64l2.11 1.65c-.04.37-.07.7-.07 1.03c0 .33.03.66.07.97l-2.11 1.65c-.19.15-.24.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-1c.52.4 1.08.73 1.69.98l.38 2.65c.04.24.25.42.5.42h4c.25 0 .46-.18.5-.42l.38-2.65c.61-.25 1.17-.59 1.69-.98l2.49 1c.22.09.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64l-2.11-1.65L19.43 12.97Z"/></svg>
+          </button>
+        </div>
       </header>
       
       <div class="game-content">
@@ -164,6 +178,95 @@
         <div class="overlay-answer">Answer: <strong id="answer-reveal"></strong></div>
         <div id="overlay-winners" class="winners-list"></div>
         <div class="overlay-timer">Next round starting in <span id="next-timer">5</span>s</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="settings-modal" class="modal hidden">
+    <div class="settings-card">
+      <div class="settings-header">
+        <h2>Game Settings</h2>
+        <button class="close-settings" id="close-settings">&times;</button>
+      </div>
+      
+      <div class="settings-content">
+        <div class="settings-section">
+          <h3><svg viewBox="0 0 24 24" width="18" height="18"><path fill="currentColor" d="M14,3.23V5.29C16.89,6.15 19,8.83 19,12C19,15.17 16.89,17.85 14,18.71V20.77C18,19.86 21,16.28 21,12C21,7.72 18,4.14 14,3.23M16.5,12C16.5,10.23 15.5,8.71 14,7.97V16.02C15.5,15.29 16.5,13.77 16.5,12M3,9V15H7L12,20V4L7,9H3Z"/></svg> Audio</h3>
+          <div class="setting-row">
+            <span>Music</span>
+            <label class="switch"><input type="checkbox" id="music-toggle" checked><span class="slider round"></span></label>
+          </div>
+          <div class="setting-row">
+            <span>Sound Effects</span>
+            <label class="switch"><input type="checkbox" id="sfx-toggle" checked><span class="slider round"></span></label>
+          </div>
+          <div class="setting-row">
+            <span>Master Volume</span>
+            <input type="range" id="volume-slider" min="0" max="100" value="80" class="modern-range">
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <h3><svg viewBox="0 0 24 24" width="18" height="18"><path fill="currentColor" d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M12,20A8,8 0 0,1 4,12A8,8 0 0,1 12,4A8,8 0 0,1 20,12A8,8 0 0,1 12,20M12,7A5,5 0 0,0 7,12A5,5 0 0,0 12,17A5,5 0 0,0 17,12A5,5 0 0,0 12,7Z"/></svg> Visual</h3>
+          <div class="setting-row vertical">
+            <span>Theme Flavor</span>
+            <div class="theme-grid">
+              <button class="theme-flavor-btn active" data-flavor="orange" style="--flavor-color: #ff8c00;"></button>
+              <button class="theme-flavor-btn" data-flavor="blue" style="--flavor-color: #0088ff;"></button>
+              <button class="theme-flavor-btn" data-flavor="purple" style="--flavor-color: #a000ff;"></button>
+              <button class="theme-flavor-btn" data-flavor="green" style="--flavor-color: #00c853;"></button>
+              <button class="theme-flavor-btn" data-flavor="red" style="--flavor-color: #ff3d00;"></button>
+            </div>
+          </div>
+          <div class="setting-row vertical">
+            <span>Font Style</span>
+            <select id="modal-font-select" class="custom-select">
+              <option value="font-fredoka">Fredoka (Playful)</option>
+              <option value="font-inter">Inter (Modern)</option>
+              <option value="font-mono">JetBrains Mono (Gaming)</option>
+              <option value="font-space">Space Grotesk (Tech)</option>
+              <option value="font-lexend">Lexend (Clean)</option>
+              <option value="font-bangers">Bangers (Bold)</option>
+            </select>
+          </div>
+          <div class="setting-row">
+            <span>Particles</span>
+            <label class="switch"><input type="checkbox" id="particles-toggle" checked><span class="slider round"></span></label>
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <h3><svg viewBox="0 0 24 24" width="18" height="18"><path fill="currentColor" d="M21,16.5C21,16.88 20.79,17.21 20.47,17.38L12.57,21.82C12.41,21.94 12.21,22 12,22C11.79,22 11.59,21.94 11.43,21.82L3.53,17.38C3.21,17.21 3,16.88 3,16.5V7.5C3,7.12 3.21,6.79 3.53,6.62L11.43,2.18C11.59,2.06 11.79,2 12,2C12.21,2 12.41,2.06 12.57,2.18L20.47,6.62C20.79,6.79 21,7.12 21,7.5V16.5Z"/></svg> Graphics</h3>
+          <div class="quality-selector">
+            <button class="quality-btn" data-quality="low">Low</button>
+            <button class="quality-btn active" data-quality="medium">Med</button>
+            <button class="quality-btn" data-quality="high">High</button>
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <h3><svg viewBox="0 0 24 24" width="18" height="18"><path fill="currentColor" d="M12,18H6V14H12M21,14H12V18H21M12,6V10H21V6M6,6V10H12V6M3,22H21V2H3V22Z"/></svg> Game</h3>
+          <div class="setting-row">
+            <span>Chat Visibility</span>
+             <label class="switch"><input type="checkbox" id="chat-visibility-toggle" checked><span class="slider round"></span></label>
+          </div>
+          <div class="setting-row">
+            <span>Fullscreen</span>
+            <button id="fullscreen-tog-btn" class="mini-btn">Toggle</button>
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <h3><svg viewBox="0 0 24 24" width="18" height="18"><path fill="currentColor" d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2V2h2v2h4V2h2v2zm-2 10V8h-4v6H8l4 4 4-4h-2z"/></svg> Accessibility</h3>
+          <div class="setting-row">
+            <span>Reduce Motion</span>
+            <label class="switch"><input type="checkbox" id="reduce-motion-toggle"><span class="slider round"></span></label>
+          </div>
+          <div class="setting-row">
+            <span>High Contrast</span>
+            <label class="switch"><input type="checkbox" id="high-contrast-toggle"><span class="slider round"></span></label>
+          </div>
+        </div>
       </div>
     </div>
   </div>

@@ -65,6 +65,13 @@ io.on("connection", (socket) => {
     }
   });
 
+  socket.on("update-room-settings", (settings) => {
+    const room = roomManager.findRoomByPlayerId(socket.id);
+    if (room && room.hostId === socket.id) {
+      room.updateSettings(settings);
+    }
+  });
+
   socket.on("submit-guess", (guess) => {
     const room = roomManager.findRoomByPlayerId(socket.id);
     if (room) {

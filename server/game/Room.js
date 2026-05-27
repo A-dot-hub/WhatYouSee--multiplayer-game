@@ -8,6 +8,7 @@ class Room {
     this.io = io;
     this.players = new Map();
     this.status = 'lobby'; // 'lobby', 'playing'
+    this.maxRounds = 5;
     
     this.roundManager = new RoundManager();
     this.scoreManager = new ScoreManager();
@@ -16,6 +17,14 @@ class Room {
     this.correctGuessers = new Set();
     this.timerInterval = null;
     this.roundEndingTimeout = null;
+  }
+
+  updateSettings(settings) {
+    if (this.status !== 'lobby') return;
+    if (settings.rounds) {
+      this.maxRounds = parseInt(settings.rounds);
+      this.broadcast("room-settings-update", { rounds: this.maxRounds });
+    }
   }
 
   addPlayer(playerId, name) {
@@ -112,6 +121,12 @@ class Room {
       p.status = 'idle';
     });
     this.updatePlayerList();
+
+    if (this.currentRound.roundNumber >= this.maxRounds) {
+        this.status = 'lobby';
+        this.broadcast("game-over", { players: this.getPlayers() });
+        return;
+    }
 
     this.roundEndingTimeout = setTimeout(() => this.startNextRound(), 5000);
   }

@@ -674,6 +674,302 @@ body.theme-yellow { --primary: #ffea00; --primary-dark: #ccbc00; --primary-glow:
   to { transform: scale(1); opacity: 1; }
 }
 
+/* Game Header & Timer Wrapper */
+.timer-container-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.settings-trigger {
+  background: var(--bg-panel);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: white;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+.settings-trigger:hover {
+  transform: rotate(45deg) scale(1.1);
+  border-color: var(--primary);
+  color: var(--primary);
+  box-shadow: 0 0 15px var(--primary-glow);
+}
+
+.settings-trigger:active {
+  transform: rotate(45deg) scale(0.9);
+}
+
+/* Settings Modal */
+.settings-card {
+  background: #0f0f0f;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-xl);
+  width: 100%;
+  max-width: 400px;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.8), 0 0 30px rgba(255, 140, 0, 0.1);
+  animation: modalEnter 0.5s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+}
+
+@keyframes modalEnter {
+  from { opacity: 0; transform: translateY(30px) scale(0.9); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.settings-header {
+  padding: 20px 25px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.settings-header h2 {
+  font-size: 1.2rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.close-settings {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 28px;
+  cursor: pointer;
+  line-height: 1;
+  transition: color 0.2s;
+}
+
+.close-settings:hover {
+  color: white;
+}
+
+.settings-content {
+  padding: 25px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+.settings-section {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.settings-section h3 {
+  font-size: 11px;
+  text-transform: uppercase;
+  color: var(--primary);
+  letter-spacing: 2px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.setting-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 15px;
+}
+
+.setting-row.vertical {
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.setting-row span {
+  font-size: 14px;
+  font-weight: 600;
+  color: #eee;
+}
+
+/* Theme Flavor Grid */
+.theme-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 10px;
+  width: 100%;
+  margin-top: 5px;
+}
+
+.theme-flavor-btn {
+  height: 36px;
+  border-radius: 10px;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  background: var(--flavor-color);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.theme-flavor-btn.active {
+  border-color: white;
+  transform: scale(1.1);
+  box-shadow: 0 0 15px var(--flavor-color);
+}
+
+/* Round Settings in Lobby */
+.host-settings {
+  background: var(--bg-panel);
+  padding: 15px;
+  border-radius: 16px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.host-settings label {
+  font-size: 10px;
+  font-weight: 800;
+  color: var(--primary);
+  letter-spacing: 1px;
+}
+
+.rounds-selector {
+  display: flex;
+  gap: 10px;
+}
+
+.round-count-btn {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: white;
+  padding: 10px;
+  border-radius: 10px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.round-count-btn.active {
+  background: var(--primary);
+  border-color: var(--primary);
+  box-shadow: 0 0 10px var(--primary-glow);
+}
+
+/* Quality Selector */
+.quality-selector {
+  display: flex;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 4px;
+  border-radius: 10px;
+  gap: 4px;
+}
+
+.quality-btn {
+  flex: 1;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  padding: 8px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.quality-btn.active {
+  background: white;
+  color: black;
+}
+
+/* Modern Range Input */
+.modern-range {
+  -webkit-appearance: none;
+  width: 120px;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 5px;
+  outline: none;
+}
+
+.modern-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 16px;
+  height: 16px;
+  background: var(--primary);
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 0 10px var(--primary-glow);
+}
+
+.mini-btn {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: white;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* Graphics Quality Overrides */
+body.quality-low * {
+  text-shadow: none !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+body.quality-low .particle { display: none; }
+
+/* Accessibility Support */
+body.reduce-motion * {
+  animation: none !important;
+  transition: none !important;
+}
+
+body.high-contrast {
+  --text: #ffffff;
+  --text-muted: #ffffff;
+  --bg-dark: #000000;
+  --bg-panel: #111111;
+  --bg-input: #222222;
+  --primary: #ffff00; /* High contrast yellow */
+  --primary-dark: #cccc00;
+}
+
+body.high-contrast * {
+  border-color: #ffffff !important;
+}
+
+/* Modal Positioning Overlay Fix */
+.modal {
+  z-index: 5000;
+}
+
+@media (max-width: 480px) {
+  .settings-card {
+    max-width: 100%;
+    height: 100%;
+    max-height: 100%;
+    border-radius: 0;
+  }
+}
+
 .modal, .overlay { 
   position: fixed; 
   top: 0; left: 0; 

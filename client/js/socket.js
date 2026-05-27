@@ -22,6 +22,11 @@ window.gameSocket = {
     console.log("Emitting leave-room");
     window.gameSocket.socket.emit("leave-room");
   },
+  updateRoomSettings: (settings) => {
+    if (!window.gameSocket.socket) return console.error("Socket not initialized");
+    console.log("Emitting update-room-settings", settings);
+    window.gameSocket.socket.emit("update-room-settings", settings);
+  },
   guess: (val) => {
     if (!window.gameSocket.socket) return console.error("Socket not initialized");
     window.gameSocket.socket.emit("submit-guess", val);
