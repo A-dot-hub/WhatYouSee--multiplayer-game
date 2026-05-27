@@ -1,17 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport"
-    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
   <title>whatUsee - Multiplayer Trivia</title>
-  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>👁️</text></svg>">
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400;700&family=Space+Grotesk:wght@400;700&family=Lexend:wght@400;700&family=Bangers&family=Monoton&family=Quicksand:wght@400;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/main.css">
   <link rel="stylesheet" href="css/game.css">
   <script src="/socket.io/socket.io.js"></script>
 </head>
-
 <body>
   <div id="join-screen" class="screen">
     <div class="join-container">
@@ -21,9 +19,51 @@
       </div>
       <form id="join-form" class="join-card">
         <div class="input-group">
-          <input type="text" id="player-name-input" placeholder="Your Nickname" maxlength="15" required
-            autocomplete="off">
+          <input type="text" id="player-name-input" placeholder="Your Nickname" maxlength="15" required autocomplete="off">
         </div>
+
+        <div class="settings-group">
+          <div class="setting-item">
+            <label>Theme</label>
+            <div class="theme-selector-wrapper">
+              <button type="button" class="nav-btn" id="prev-theme">&lt;</button>
+              <div class="theme-selector" id="theme-carousel">
+                <button type="button" class="theme-btn active" data-theme="orange" style="background: #ff8c00;"></button>
+                <button type="button" class="theme-btn" data-theme="blue" style="background: #0088ff;"></button>
+                <button type="button" class="theme-btn" data-theme="purple" style="background: #a000ff;"></button>
+                <button type="button" class="theme-btn" data-theme="green" style="background: #00c853;"></button>
+                <button type="button" class="theme-btn" data-theme="red" style="background: #ff3d00;"></button>
+                <button type="button" class="theme-btn" data-theme="pink" style="background: #ff007f;"></button>
+                <button type="button" class="theme-btn" data-theme="cyan" style="background: #00e5ff;"></button>
+                <button type="button" class="theme-btn" data-theme="yellow" style="background: #ffea00;"></button>
+              </div>
+              <button type="button" class="nav-btn" id="next-theme">&gt;</button>
+            </div>
+          </div>
+
+          <div class="setting-item">
+            <label>Typography</label>
+            <select id="font-select" class="custom-select">
+              <option value="font-fredoka">Fredoka (Playful)</option>
+              <option value="font-inter">Inter (Modern)</option>
+              <option value="font-mono">JetBrains Mono (Gaming)</option>
+              <option value="font-space">Space Grotesk (Tech)</option>
+              <option value="font-lexend">Lexend (Clean)</option>
+              <option value="font-bangers">Bangers (Bold)</option>
+              <option value="font-monoton">Monoton (Retro)</option>
+              <option value="font-quicksand">Quicksand (Soft)</option>
+            </select>
+          </div>
+
+          <div class="setting-item flex-between">
+            <label>Enable Sound</label>
+            <label class="switch">
+              <input type="checkbox" id="sound-toggle" checked>
+              <span class="slider round"></span>
+            </label>
+          </div>
+        </div>
+        
         <button type="submit" class="btn-primary">PLAY</button>
       </form>
     </div>
@@ -36,7 +76,7 @@
         <div class="header-question" id="question-text">Look closely...</div>
         <div class="timer-badge" id="timer-text">45</div>
       </header>
-
+      
       <div class="game-content">
         <div class="canvas-area">
           <div id="image-container">
@@ -45,7 +85,7 @@
           <!-- Flash Messages Overlay -->
           <div id="flash-container"></div>
         </div>
-
+        
         <div class="sidebar">
           <div class="scoreboard" id="scoreboard"></div>
           <div class="chat-container">
@@ -54,9 +94,7 @@
               <div class="input-wrapper">
                 <input type="text" id="chat-input" placeholder="Type your guess..." autocomplete="off">
                 <button type="submit" id="send-btn">
-                  <svg viewBox="0 0 24 24">
-                    <path d="M2,21L23,12L2,3V10L17,12L2,14V21Z" fill="white" />
-                  </svg>
+                  <svg viewBox="0 0 24 24"><path d="M2,21L23,12L2,3V10L17,12L2,14V21Z" fill="white"/></svg>
                 </button>
               </div>
             </form>
@@ -64,36 +102,18 @@
         </div>
       </div>
     </div>
-
+    
     <button id="help-btn" class="draggable-btn">?</button>
-
+    
     <div id="help-modal" class="modal hidden">
       <div class="modal-content">
         <h2>How to Play</h2>
-        <ul class="help-list"><style>
-          .icon {
-            color: #ff8c00;
-            margin-right: 8px;
-          }
-        </style>
-        
-        <li>
-          <i class="fa-solid fa-eye icon"></i>
-          <strong>See:</strong>Look at the image carefully.
-        </li>
-        
-        <li>
-          <i class="fa-solid fa-bullseye icon"></i>
-          <strong>Guess:</strong>Type your answer in chat.
-        </li>
-        
-        <li>
-          <i class="fa-solid fa-trophy icon"></i>
-          <strong>Score:</strong>1st gets 100,others get 50!
-        </li>
+        <ul class="help-list">
+          <li>🖼️ <strong>See:</strong> Look at the image carefully.</li>
+          <li>🎯 <strong>Guess:</strong> Type your answer in the chat.</li>
+          <li>🥇 <strong>Score:</strong> 1st gets 100, others get 50!</li>
         </ul>
-        <button class="btn-primary" onclick="document.getElementById('help-modal').classList.add('hidden')">Got
-          it!</button>
+        <button class="btn-primary" onclick="document.getElementById('help-modal').classList.add('hidden')">Got it!</button>
       </div>
     </div>
 
@@ -110,12 +130,11 @@
   <script src="js/chat.js"></script>
   <script src="js/timer.js"></script>
   <script src="js/ui.js"></script>
+  <script src="js/reveal.js"></script>
+  <script src="js/juice.js"></script>
+  <script src="js/audio.js"></script>
   <script src="js/socket.js"></script>
   <script src="js/game.js"></script>
   <script src="js/landing.js"></script>
 </body>
-
 </html>
-
-
-
